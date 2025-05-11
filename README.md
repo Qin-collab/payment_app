@@ -23,8 +23,8 @@
 
 商品数据存储在`config.csv`文件中，格式为：
 ```
-name,price,discountable
-商品名称,价格,是否可打折(true/false)
+name,price
+商品名称,价格
 ```
 
 ## 界面说明

@@ -12,15 +12,19 @@
 ## 使用方法
 
 1. 确保已安装Python 3.x
-2. 安装依赖：`pip install tkinter`
-3. 运行程序：`python payment_app.py`
+2. 安装依赖: `pip install -r requirements.txt`
+3. 运行程序: `python payment_app.py`
+
+## 启动动画
+
+程序启动时会显示5秒的"支付程序"启动画面，然后进入主界面。
 
 ## 商品配置
 
 商品数据存储在`config.csv`文件中，格式为：
 ```
-name,price
-商品名称,价格
+name,price,discountable
+商品名称,价格,是否可打折(true/false)
 ```
 
 ## 界面说明

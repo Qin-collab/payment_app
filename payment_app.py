@@ -119,7 +119,31 @@ class PaymentApp:
             self.cart.pop(selected_index[0])
             self.update_cart_display()
 
+class SplashScreen:
+    def __init__(self, root):
+        self.root = root
+        self.root.overrideredirect(True)
+        width = 400
+        height = 200
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x = (screen_width/2) - (width/2)
+        y = (screen_height/2) - (height/2)
+        self.root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        
+        self.label = tk.Label(root, text="支付程序", font=('Helvetica', 24))
+        self.label.pack(expand=True)
+        
+        self.root.after(5000, self.destroy)
+    
+    def destroy(self):
+        self.root.destroy()
+
 if __name__ == "__main__":
+    splash_root = tk.Tk()
+    splash = SplashScreen(splash_root)
+    splash_root.mainloop()
+    
     root = tk.Tk()
     app = PaymentApp(root)
     root.mainloop()

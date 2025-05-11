@@ -75,6 +75,11 @@ class PaymentApp:
         
         # 删除按钮
         ttk.Button(self.root, text="删除选中商品", command=self.remove_from_cart).grid(row=7, column=0, columnspan=2, pady=10)
+        
+        # 时间显示
+        self.time_label = ttk.Label(self.root, text="")
+        self.time_label.grid(row=8, column=1, sticky="se", padx=5, pady=5)
+        self.update_time()
     
     def add_to_cart(self):
         product_name = self.product_var.get()
@@ -118,6 +123,12 @@ class PaymentApp:
         if selected_index:
             self.cart.pop(selected_index[0])
             self.update_cart_display()
+            
+    def update_time(self):
+        from datetime import datetime
+        current_time = datetime.now().strftime('%H:%M')
+        self.time_label.config(text=current_time)
+        self.root.after(1000, self.update_time)
 
 class SplashScreen:
     def __init__(self, root):

@@ -6,6 +6,12 @@ class PaymentApp:
     def __init__(self, root):
         self.root = root
         self.root.title("支付系统")
+        self.root.configure(bg='#f0f0f0')
+        style = ttk.Style()
+        style.configure('TLabel', background='#f0f0f0', font=('Microsoft YaHei', 9))
+        style.configure('TButton', font=('Microsoft YaHei', 9), padding=5)
+        style.configure('TCombobox', font=('Microsoft YaHei', 9))
+        style.configure('TEntry', font=('Microsoft YaHei', 9))
         
         # 商品数据
         self.products = []
@@ -77,9 +83,13 @@ class PaymentApp:
         ttk.Button(self.root, text="删除选中商品", command=self.remove_from_cart).grid(row=7, column=0, columnspan=2, pady=10)
         
         # 时间显示
-        self.time_label = ttk.Label(self.root, text="")
+        self.time_label = ttk.Label(self.root, text="", font=('Microsoft YaHei', 10))
         self.time_label.grid(row=8, column=1, sticky="se", padx=5, pady=5)
         self.update_time()
+        
+        # 添加边框和间距
+        for child in self.root.winfo_children():
+            child.grid_configure(padx=10, pady=5)
     
     def add_to_cart(self):
         product_name = self.product_var.get()
@@ -142,7 +152,7 @@ class SplashScreen:
         y = (screen_height/2) - (height/2)
         self.root.geometry('%dx%d+%d+%d' % (width, height, x, y))
         
-        self.label = tk.Label(root, text="支付程序", font=('Helvetica', 24))
+        self.label = tk.Label(root, text="支付程序", font=('Helvetica', 18))
         self.label.pack(expand=True)
         
         self.root.after(5000, self.destroy)
@@ -150,11 +160,96 @@ class SplashScreen:
     def destroy(self):
         self.root.destroy()
 
+class LoginWindow:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("登录/注册")
+        self.root.geometry("300x200")
+        
+        ttk.Label(root, text="用户名:").grid(row=0, column=0, padx=5, pady=5)
+        self.username_entry = ttk.Entry(root)
+        self.username_entry.grid(row=0, column=1, padx=5, pady=5)
+        
+        ttk.Label(root, text="密码:").grid(row=1, column=0, padx=5, pady=5)
+        self.password_entry = ttk.Entry(root, show="*")
+        self.password_entry.grid(row=1, column=1, padx=5, pady=5)
+        
+        self.login_button = ttk.Button(root, text="登录", command=self.verify_login)
+        self.login_button.grid(row=2, column=0, pady=10)
+        
+        self.register_button = ttk.Button(root, text="注册", command=self.register_user)
+        self.register_button.grid(row=2, column=1, pady=10)
+        
+        self.status_label = ttk.Label(root, text="", foreground="red")
+        self.status_label.grid(row=3, column=0, columnspan=2)
+    
+    def verify_login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        
+        try:
+            with open('./data/UesrConfig.txt', 'r') as f:
+                for line in f:
+                    if line.strip():
+                        u, p = line.strip().split(',')
+                        if username == u and password == p:
+                            self.root.destroy()
+                            return True
+            self.status_label.config(text="用户名或密码错误")
+            return False
+        except Exception as e:
+            self.status_label.config(text=f"登录失败: {str(e)}")
+            return False
+            
+    def register_user(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        
+        if not username or not password:
+            self.status_label.config(text="用户名和密码不能为空")
+            return
+            
+        try:
+            # 检查是否有现有用户
+            with open('./data/UesrConfig.txt', 'r') as f:
+                lines = [line.strip() for line in f if line.strip()]
+                
+                # 如果有现有用户，则要求输入现有用户信息
+                if lines:
+                    existing_user = lines[0].split(',')[0]
+                    if username != existing_user:
+                        self.status_label.config(text=f"请输入现有用户 '{existing_user}' 进行验证", foreground="blue")
+                        return
+                    else:
+                        self.status_label.config(text="验证通过，可以继续注册", foreground="green")
+                        # 继续执行注册流程
+                
+                # 检查用户是否已存在
+                for line in lines:
+                    u, _ = line.split(',')
+                    if username == u:
+                        self.status_label.config(text="用户名已存在")
+                        return
+            
+            # 添加新用户
+            with open('./data/UesrConfig.txt', 'a') as f:
+                f.write(f"\n{username},{password}")
+                
+            self.status_label.config(text="注册成功", foreground="green")
+        except Exception as e:
+            self.status_label.config(text=f"注册失败: {str(e)}", foreground="red")
+
 if __name__ == "__main__":
     splash_root = tk.Tk()
     splash = SplashScreen(splash_root)
     splash_root.mainloop()
     
-    root = tk.Tk()
-    app = PaymentApp(root)
-    root.mainloop()
+    login_root = tk.Tk()
+    login = LoginWindow(login_root)
+    login_root.mainloop()
+    
+    # 只有登录窗口正常关闭(即登录成功)才会打开主界面
+    if not login_root.winfo_exists():
+        root = tk.Tk()
+        app = PaymentApp(root)
+        root.mainloop()
